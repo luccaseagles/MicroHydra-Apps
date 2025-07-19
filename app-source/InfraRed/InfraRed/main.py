@@ -19,3 +19,4 @@ tx = UpyIrTx(0, 44)
 # Send signal
 tx.send_raw(raw_signal)
 print("Power signal sent.")
+time.sleep_ms(1000)
