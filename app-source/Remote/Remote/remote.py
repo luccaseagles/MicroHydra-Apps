@@ -1,121 +1,135 @@
+"""MicroHydra App Template.
+
+Version: 1.0
+
+
+This is a basic skeleton for a MicroHydra app, to get you started.
+
+There is no specific requirement in the way a MicroHydra app must be organized or styled.
+The choices made here are based entirely on my own preferences and stylistic whims;
+please change anything you'd like to suit your needs
+(or ignore this template entirely if you'd rather)
+
+This template is not intended to enforce a specific style, or to give guidelines on best practices,
+it is just intended to provide an easy starting point for learners,
+or provide a quick start for anyone that just wants to whip something up.
+
+Have fun!
+
+TODO: replace the above description with your own!
 """
-Roku Remote for MicroHydra
 
-Control a Roku device over Wi-Fi using MicroPython.
-"""
+import time
 
-import time, network, urequests
-from machine import freq
-from lib.display import Display
-from lib.userinput import UserInput
-from lib.hydra.config import Config
-from lib.device import Device
-from font import vga1_8x16 as font
-from lib.hydra.popup import UIOverlay
+from lib import display, userinput
+from lib.hydra import config
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~ Setup & Globals ~~~~~~~~~~~~~~~~~~~~~~~~~
-freq(240000000)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ _CONSTANTS: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+_MH_DISPLAY_HEIGHT = const(135)
+_MH_DISPLAY_WIDTH = const(240)
+_DISPLAY_WIDTH_HALF = const(_MH_DISPLAY_WIDTH // 2)
 
-if "CARDPUTER" in Device:
-    import neopixel
-    led = neopixel.NeoPixel(Pin(21), 1, bpp=3)
-
-tft = Display(use_tiny_buf=("spi_ram" not in Device))
-config = Config()
-kb = UserInput()
-nic = network.WLAN(network.STA_IF)
-OVERLAY = UIOverlay()
-
-DISPLAY_WIDTH = Device.display_width
-DISPLAY_HEIGHT = Device.display_height
-DISPLAY_WIDTH_HALF = DISPLAY_WIDTH // 2
-
-_CHAR_WIDTH = 8
-_CHAR_WIDTH_HALF = _CHAR_WIDTH // 2
-
-ROKU_IP = "192.168.1.100"  # <-- Set your Roku's IP here
-ROKU_URL = f"http://{ROKU_IP}:8060"
+_CHAR_WIDTH = const(8)
+_CHAR_WIDTH_HALF = const(_CHAR_WIDTH // 2)
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~ Utility Functions ~~~~~~~~~~~~~~~~~~~~~~~
-def gprint(text, clr_idx=8):
-    text = str(text)
-    print(text)
-    tft.fill(config.palette[2])
-    x = DISPLAY_WIDTH_HALF - (len(text) * _CHAR_WIDTH_HALF)
-    tft.text(text, x, DISPLAY_HEIGHT // 2, config.palette[clr_idx], font=font)
-    tft.show()
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ GLOBAL_OBJECTS: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-def errprint(text):
-    text = str(text)
-    print("[ERROR]", text)
-    tft.fill(config.palette[1])
-    OVERLAY.error(text)
+# init object for accessing display
+DISPLAY = display.Display()
 
-def connect_wifi():
-    gprint("Connecting Wi-Fi...", clr_idx=6)
-    if not nic.active():
-        nic.active(True)
+# object for accessing microhydra config (Delete if unneeded)
+CONFIG = config.Config()
 
-    while not nic.isconnected():
-        try:
-            nic.connect(config['wifi_ssid'], config['wifi_pass'])
-        except Exception as e:
-            gprint(f"WiFi error: {repr(e)}", clr_idx=11)
-            time.sleep(1)
-        time.sleep_ms(500)
-
-    gprint("Connected!", clr_idx=4)
-    time.sleep(0.5)
-
-def roku_keypress(key):
-    try:
-        response = urequests.post(f"{ROKU_URL}/keypress/{key}")
-        response.close()
-        gprint(f"Sent: {key}", clr_idx=5)
-    except Exception as e:
-        errprint(f"Send failed: {key}\n{e}")
-        time.sleep(1)
+# object for reading keypresses (or other user input)
+INPUT = userinput.UserInput()
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~ Main Loop ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def main():
-    connect_wifi()
-    gprint("Roku Remote Ready", clr_idx=4)
-    time.sleep(1)
+# --------------------------------------------------------------------------------------------------
+# -------------------------------------- function_definitions: -------------------------------------
+# --------------------------------------------------------------------------------------------------
 
-    current_text = "Ready"
+# Add any function definitions you want here
+# def hello_world():
+#     print("Hello world!")
 
-    while True:
-        keys = kb.get_new_keys()
-        kb.ext_dir_keys(keys)
 
+# --------------------------------------------------------------------------------------------------
+# ---------------------------------------- ClassDefinitions: ---------------------------------------
+# --------------------------------------------------------------------------------------------------
+
+# Add any class definitions you want here
+# class Placeholder:
+#     def __init__(self):
+#         print("Placeholder")
+
+
+# --------------------------------------------------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Main Loop: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def main_loop():
+    """Run the main loop of the program.
+
+    Runs forever (until program is closed).
+    """
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ INITIALIZATION: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    # If you need to do any initial work before starting the loop, this is a decent place to do it.
+
+    # create variable to remember text between loops
+    current_text = "Hello World!"
+
+
+
+    while True:  # Fill this loop with your program logic! (delete old code you don't need)
+
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ INPUT: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        # put user input logic here
+
+        # get list of newly pressed keys
+        keys = INPUT.get_new_keys()
+
+        # if there are keys, convert them to a string, and store for display
         if keys:
             current_text = str(keys)
-            gprint(current_text, clr_idx=6)
 
-            # Roku key mappings
-            if "UP" in keys:
-                roku_keypress("Up")
-            elif "DOWN" in keys:
-                roku_keypress("Down")
-            elif "LEFT" in keys:
-                roku_keypress("Left")
-            elif "RIGHT" in keys:
-                roku_keypress("Right")
-            elif "A" in keys:
-                roku_keypress("Home")
-            elif "B" in keys:
-                roku_keypress("Back")
-            elif "ENTER" in keys:
-                roku_keypress("Select")
-            elif "ESC" in keys:
-                roku_keypress("Back")
-            elif "SPACE" in keys:
-                roku_keypress("Play")
 
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ MAIN GRAPHICS: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        # put graphics rendering logic here
+
+        # clear framebuffer
+        DISPLAY.fill(CONFIG.palette[2])
+
+        # write current text to framebuffer
+        DISPLAY.text(
+            text=current_text,
+            # center text on x axis:
+            x=_DISPLAY_WIDTH_HALF - (len(current_text) * _CHAR_WIDTH_HALF),
+            y=50,
+            color=CONFIG.palette[8],
+            )
+
+        # write framebuffer to display
+        DISPLAY.show()
+
+
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ HOUSEKEEPING: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        # anything that needs to be done to prepare for next loop
+
+        # do nothing for 10 milliseconds
         time.sleep_ms(10)
 
 
-main()
+
+# start the main loop
+main_loop()
