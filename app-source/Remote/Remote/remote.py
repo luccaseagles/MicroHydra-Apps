@@ -75,7 +75,6 @@ while not nic.isconnected():
 
 gprint("Hint: Tab: Home", clr_idx=4)
 
-
 while True:
     keys = kb.get_new_keys()
     kb.ext_dir_keys(keys)

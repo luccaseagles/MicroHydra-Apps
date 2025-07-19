@@ -63,7 +63,7 @@ For clarity, this is how the `app-source` folder is structured:
 
 # Apps by device:  
 
-*This repo currently hosts **1** apps, for **1** unique devices, by **1** different authors.*  
+*This repo currently hosts **2** apps, for **1** unique devices, by **2** different authors.*  
 *Click a link below to jump to the apps for that specific device.*
 
 - [Cardputer](#cardputer)
@@ -72,12 +72,18 @@ For clarity, this is how the `app-source` folder is structured:
 <br/><br/><br/>        
 
 ## Cardputer  
-*There are 1 apps for the Cardputer.*
+*There are 2 apps for the Cardputer.*
 
 
 ### <img src="images/icons/Remote.png" width="14"> [Remote](https://github.com/echo-lalia/MicroHydra-Apps/tree/main/app-source/Remote)  
 > <img src="https://github.com/echo-lalia.png?size=20" width="10"> **[Luccas](https://github.com/echo-lalia)**  
 > Version: **1.1** | License: **[MIT](https://github.com/echo-lalia/MicroHydra-Apps/blob/main/LICENSE)**  
 > Luccas' remote for his TV 1.0
+<br/>
+
+### <img src="images/default_icon.png" width="14"> [InfraRed](https://github.com/echo-lalia/MicroHydra-Apps/tree/main/app-source/InfraRed)  
+> <img src="https://github.com/ndrnmnk.png?size=20" width="10"> **[ndrnmnk](https://github.com/ndrnmnk)**  
+> Version: **1.0** | License: **?**  
+> Infrared codes sender/reciever app.
 <br/>
 
