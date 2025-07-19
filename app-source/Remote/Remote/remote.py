@@ -85,7 +85,7 @@ gprint('Connecting to WIFI...', clr_idx=6)
 time.sleep_ms(1000)
 
 # turn on wifi if it isn't already
-if not nic.active(): 
+if not nic.active():
     nic.active(True)
 
 # keep trying to connect until command works
@@ -103,39 +103,47 @@ while not nic.isconnected():
 
 gprint("Wifi connected", clr_idx=4)
 
+ROKU_IP = "192.168.68.49"
+
+def create_keypress(key):
+    url = f"http://{ROKU_IP}:8060/keypress/{key}"
+    requests.post(url)
+
+
 # roku = Roku(ROKU_IP)
 
 # gprint("Roku init", clr_idx=4)
 
 # current_text = "Ready"
 
-# while True:
-#     keys = kb.get_new_keys()
-#     kb.ext_dir_keys(keys)
+while True:
+    keys = kb.get_new_keys()
+    kb.ext_dir_keys(keys)
 
-#     if keys:
-#         current_text = str(keys)
-#         gprint(current_text, clr_idx=6)
+    if keys:
+        # current_text = str(keys)
+        # gprint(current_text, clr_idx=6)       
 
-#         # Roku key mappings
-#         if "UP" in keys:
-#             roku.keypress("Up")
-#         elif "DOWN" in keys:
-#             roku.keypress("Down")
-#         elif "LEFT" in keys:
-#             roku.keypress("Left")
-#         elif "RIGHT" in keys:
-#             roku.keypress("Right")
-#         elif "A" in keys:
-#             roku.keypress("Home")
-#         elif "B" in keys:
-#             roku.keypress("Back")
-#         elif "ENTER" in keys:
-#             roku.keypress("Select")
-#         elif "ESC" in keys:
-#             roku.keypress("Back")
-#         elif "SPACE" in keys:
-#             roku.keypress("Play")
+        # Roku key mappings
+        if "UP" in keys:
+            create_keypress("Up")
+        elif "DOWN" in keys:
+            create_keypress("Down")
+        # elif "LEFT" in keys:
+        #     create_keypress("Left")
+        # elif "RIGHT" in keys:
+        #     create_keypress("Right")
+        # elif "A" in keys:
+        #     create_keypress("Home")
+        # elif "B" in keys:
+        #     create_keypress("Back")
+        # elif "ENTER" in keys:
+        #     create_keypress("Select")
+        # elif "ESC" in keys:
+        #     create_keypress("Back")
+        # elif "SPACE" in keys:
+        #     create_keypress("Play")
 
-#     time.sleep_ms(10)
+
+    time.sleep_ms(10)
 
