@@ -24,7 +24,7 @@ if __name__ == "__main__":
     # Replace with your Roku's IP
     roku = Roku("192.168.68.49", debug=True)
 
-    test_keys = ["Lit_ "]
+    test_keys = ["Lit_%20"]
 
     for key in test_keys:
         roku.keypress(key)

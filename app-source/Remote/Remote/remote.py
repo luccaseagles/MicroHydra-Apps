@@ -97,7 +97,7 @@ while True:
         elif "TAB" in keys:
             create_keypress("Home")
         elif "SPC" in keys:
-            create_keypress("Lit_ ")
+            create_keypress("Lit_%20")
         elif "BSPC" in keys:
             create_keypress("Backspace")
         else:
