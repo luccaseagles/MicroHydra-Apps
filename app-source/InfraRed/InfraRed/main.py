@@ -4,7 +4,7 @@ import time
 # from machine import Pin, freq
 from lib.display import Display
 # from lib.userinput import UserInput
-# from lib.hydra.config import Config
+from lib.hydra.cokusnfig import Config
 from lib.device import Device
 from lib.hydra.popup import UIOverlay
 from font import vga1_8x16 as font
