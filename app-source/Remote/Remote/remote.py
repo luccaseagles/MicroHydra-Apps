@@ -20,13 +20,8 @@ while True:
             create_keypress("Select")
         elif "SPC" in keys:
             create_keypress("Play")
-        # ~~~~ MINIMAL ADDITION: handle single character keys ~~~~~~
         else:
-            # If keys contains a single printable character (letter/number)
-            # Modify as needed to support your kb.get_new_keys() format
             for key in keys:
-                if len(key) == 1 and key.isprintable():
-                    # Use Roku's /keypress/Lit_<char> endpoint
-                    create_keypress(f"Lit_{key}")
+                create_keypress(f"Lit_{key}")
 
     time.sleep_ms(10)
