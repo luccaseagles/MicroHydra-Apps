@@ -70,7 +70,7 @@ def fetch_article():
     if "CARDPUTER" in Device:
         led.fill((10,0,0)); led.write() # set led
 
-    gprint('Connecting to WIFI...', clr_idx=6)
+    gprint('WAHOO! to WIFI...', clr_idx=6)
     
     if not nic.active(): # turn on wifi if it isn't already
         nic.active(True)
