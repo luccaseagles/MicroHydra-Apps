@@ -63,7 +63,7 @@ For clarity, this is how the `app-source` folder is structured:
 
 # Apps by device:  
 
-*This repo currently hosts **24** apps, for **2** unique devices, by **11** different authors.*  
+*This repo currently hosts **24** apps, for **2** unique devices, by **10** different authors.*  
 *Click a link below to jump to the apps for that specific device.*
 
 - [Cardputer](#cardputer)
@@ -75,6 +75,12 @@ For clarity, this is how the `app-source` folder is structured:
 ## Cardputer  
 *There are 24 apps for the Cardputer.*
 
+
+### <img src="images/icons/Remote.png" width="14"> [Remote](https://github.com/echo-lalia/MicroHydra-Apps/tree/main/app-source/Remote)  
+> <img src="https://github.com/echo-lalia.png?size=20" width="10"> **[echo-lalia](https://github.com/echo-lalia)**  
+> Version: **1.1** | License: **[MIT](https://github.com/echo-lalia/MicroHydra-Apps/blob/main/LICENSE)**  
+> Luccas' remote for his TV
+<br/>
 
 ### <img src="images/default_icon.png" width="14"> [NumScript](https://github.com/echo-lalia/MicroHydra-Apps/tree/main/app-source/NumScript)  
 > <img src="https://github.com/JustABreathingHuman.png?size=20" width="10"> **[JustABreathingHuman](https://github.com/JustABreathingHuman)**  
@@ -172,10 +178,10 @@ For clarity, this is how the `app-source` folder is structured:
 > A clock app
 <br/>
 
-### <img src="images/default_icon.png" width="14"> [mystify](https://github.com/echo-lalia/MicroHydra-Apps/tree/main/app-source/mystify)  
-> <img src="https://github.com/melange396.png?size=20" width="10"> **[melange396](https://github.com/melange396)**  
+### <img src="images/icons/Music.png" width="14"> [Music](https://github.com/echo-lalia/MicroHydra-Apps/tree/main/app-source/Music)  
+> <img src="https://github.com/Benzamp.png?size=20" width="10"> **[Ben Harrison (Benzamp)](https://github.com/Benzamp)**  
 > Version: **1.0** | License: **[MIT](https://github.com/echo-lalia/MicroHydra-Apps/blob/main/LICENSE)**  
-> A moving polygon screensaver app
+> A music player app.
 <br/>
 
 ### <img src="images/default_icon.png" width="14"> [KanjiReader](https://github.com/echo-lalia/MicroHydra-Apps/tree/main/app-source/KanjiReader)  
@@ -190,16 +196,16 @@ For clarity, this is how the `app-source` folder is structured:
 > A dice rolling app
 <br/>
 
-### <img src="images/default_icon.png" width="14"> [Connect](https://github.com/echo-lalia/MicroHydra-Apps/tree/main/app-source/Connect)  
-> <img src="https://github.com/RealClearwave.png?size=20" width="10"> **[RealClearwave](https://github.com/RealClearwave)**  
+### <img src="images/default_icon.png" width="14"> [mystify](https://github.com/echo-lalia/MicroHydra-Apps/tree/main/app-source/mystify)  
+> <img src="https://github.com/melange396.png?size=20" width="10"> **[melange396](https://github.com/melange396)**  
 > Version: **1.0** | License: **[MIT](https://github.com/echo-lalia/MicroHydra-Apps/blob/main/LICENSE)**  
-> MicroHydra Connectivity Kit
+> A moving polygon screensaver app
 <br/>
 
-### <img src="images/icons/Music.png" width="14"> [Music](https://github.com/echo-lalia/MicroHydra-Apps/tree/main/app-source/Music)  
-> <img src="https://github.com/Benzamp.png?size=20" width="10"> **[Ben Harrison (Benzamp)](https://github.com/Benzamp)**  
-> Version: **1.0** | License: **[MIT](https://github.com/echo-lalia/MicroHydra-Apps/blob/main/LICENSE)**  
-> A music player app.
+### <img src="images/default_icon.png" width="14"> [mmlPlay](https://github.com/echo-lalia/MicroHydra-Apps/tree/main/app-source/mmlPlay)  
+> <img src="https://github.com/RealClearwave.png?size=20" width="10"> **[RealClearwave](https://github.com/RealClearwave)**  
+> Version: **1.1** | License: **[MIT](https://github.com/echo-lalia/MicroHydra-Apps/blob/main/LICENSE)**  
+> Music Macro Language player
 <br/>
 
 ### <img src="images/default_icon.png" width="14"> [HackSim](https://github.com/echo-lalia/MicroHydra-Apps/tree/main/app-source/HackSim)  
@@ -208,16 +214,10 @@ For clarity, this is how the `app-source` folder is structured:
 > Simple Hack Simulation for MicroHydra
 <br/>
 
-### <img src="images/icons/InfraRed.png" width="14"> [InfraRed](https://github.com/echo-lalia/MicroHydra-Apps/tree/main/app-source/InfraRed)  
-> <img src="https://github.com/ndrnmnk.png?size=20" width="10"> **[ndrnmnk](https://github.com/ndrnmnk)**  
-> Version: **1.0** | License: **?**  
-> Infrared codes sender/reciever app.
-<br/>
-
-### <img src="images/default_icon.png" width="14"> [mmlPlay](https://github.com/echo-lalia/MicroHydra-Apps/tree/main/app-source/mmlPlay)  
+### <img src="images/default_icon.png" width="14"> [Connect](https://github.com/echo-lalia/MicroHydra-Apps/tree/main/app-source/Connect)  
 > <img src="https://github.com/RealClearwave.png?size=20" width="10"> **[RealClearwave](https://github.com/RealClearwave)**  
-> Version: **1.1** | License: **[MIT](https://github.com/echo-lalia/MicroHydra-Apps/blob/main/LICENSE)**  
-> Music Macro Language player
+> Version: **1.0** | License: **[MIT](https://github.com/echo-lalia/MicroHydra-Apps/blob/main/LICENSE)**  
+> MicroHydra Connectivity Kit
 <br/>
 
 
@@ -270,15 +270,15 @@ For clarity, this is how the `app-source` folder is structured:
 > A clock app
 <br/>
 
-### <img src="images/default_icon.png" width="14"> [mystify](https://github.com/echo-lalia/MicroHydra-Apps/tree/main/app-source/mystify)  
-> <img src="https://github.com/melange396.png?size=20" width="10"> **[melange396](https://github.com/melange396)**  
-> Version: **1.0** | License: **[MIT](https://github.com/echo-lalia/MicroHydra-Apps/blob/main/LICENSE)**  
-> A moving polygon screensaver app
-<br/>
-
 ### <img src="images/default_icon.png" width="14"> [chaosDice](https://github.com/echo-lalia/MicroHydra-Apps/tree/main/app-source/chaosDice)  
 > <img src="https://github.com/echo-lalia.png?size=20" width="10"> **[echo-lalia](https://github.com/echo-lalia)**  
 > Version: **2.0** | License: **[MIT](https://github.com/echo-lalia/MicroHydra-Apps/blob/main/LICENSE)**  
 > A dice rolling app
+<br/>
+
+### <img src="images/default_icon.png" width="14"> [mystify](https://github.com/echo-lalia/MicroHydra-Apps/tree/main/app-source/mystify)  
+> <img src="https://github.com/melange396.png?size=20" width="10"> **[melange396](https://github.com/melange396)**  
+> Version: **1.0** | License: **[MIT](https://github.com/echo-lalia/MicroHydra-Apps/blob/main/LICENSE)**  
+> A moving polygon screensaver app
 <br/>
 

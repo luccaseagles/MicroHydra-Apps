@@ -103,12 +103,15 @@ class AppSource:
 
     def _get_modified_time(self):
         """Ask git for the most recent commit timestamp in this app, convert to epoch."""
+
+        print(['git', 'log', '-1', r'--format="%ai"', self.dir_entry.path])
         # Inquire to git about latest commit
         output = subprocess.check_output(['git', 'log', '-1', r'--format="%ai"', self.dir_entry.path])
-
+        
         # Convert bytes to str and clean it.
         output = output.decode().strip().strip('"')
 
+        print(output)
         # convert to datetime
         dt = datetime.datetime.strptime(output, '%Y-%m-%d %H:%M:%S %z')
 
@@ -398,6 +401,7 @@ def compile_mpy_apps(app_sources):
             subprocess.run(["./tools/mpy-cross", "-o", fileoutput, target_path, "-march=xtensawin"])
         
         shutil.make_archive(output_path, 'zip', output_path)
+        print(output_path)
         shutil.rmtree(output_path)
 
 
