@@ -97,15 +97,12 @@ while True:
         elif "TAB" in keys:
             create_keypress("Home")
         elif "SPC" in keys:
-            create_keypress("Lit_ ")
+            create_keypress("Lit_a")
         elif "BSPC" in keys:
             create_keypress("Backspace")
         else:
             for key in keys:
                 create_keypress(f"Lit_{key}")
-
-    time.sleep_ms(10)
-
 
     time.sleep_ms(10)
 
