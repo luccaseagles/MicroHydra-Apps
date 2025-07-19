@@ -4,7 +4,7 @@ This file is generated from the "details.yml" file. (Any changes here will be ov
 # <img src="../../images/icons/InfraRed.png" width="16"> InfraRed
 > ### <img src="https://github.com/ndrnmnk.png?size=26" width="13"> **[ndrnmnk](https://github.com/ndrnmnk)**  
 > Version: **1.0** | License: **?**  
-> App name: **IR**
+> App name: **InfraRed**
 <br/>
 
 Infrared codes sender and reciever app.
