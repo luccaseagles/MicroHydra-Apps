@@ -8,6 +8,8 @@ from lib.device import Device
 from lib.hydra.popup import UIOverlay
 from font import vga1_8x16 as font
 
+ROKU_IP = "192.168.68.49"
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~ global objects/vars ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 freq(240000000)
 
@@ -33,36 +35,6 @@ DISPLAY_HEIGHT_HALF = DISPLAY_HEIGHT // 2
 MAX_H_CHARS = DISPLAY_WIDTH // 8
 MAX_V_LINES = DISPLAY_HEIGHT // 16
 
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Function Definitions: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-def gprint(text, clr_idx=8):
-    text = str(text)
-    print(text)
-    tft.fill(config.palette[2])
-    x = DISPLAY_WIDTH_HALF - (len(text) * 4)
-    tft.text(text, x, DISPLAY_HEIGHT_HALF, config.palette[clr_idx], font=font)
-    tft.show()
-
-
-    # class Roku:
-    #     def __init__(self, ip):
-    #         self.base_url = f"http://{ip}:8060"
-    #         self.requests = urequests
-
-    #     def keypress(self, key):
-    #         url = f"{self.base_url}/keypress/{key}"
-    #         try:
-    #             resp = self.requests.post(url)
-    #             resp.close()
-    #             return True
-    #         except Exception as e:
-    #             print("[ERROR] Failed to send keypress:", key, e)
-    #             return False
-
-
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~ Utility Functions ~~~~~~~~~~~~~~~~~~~~~~~
 def gprint(text, clr_idx=8):
     text = str(text)
     print(text)
@@ -77,9 +49,9 @@ def errprint(text):
     tft.fill(config.palette[1])
     OVERLAY.error(text)
 
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~ Main Loop ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+def create_keypress(key):
+    url = f"http://{ROKU_IP}:8060/keypress/{key}"
+    requests.post(url)
 
 gprint('Connecting to WIFI...', clr_idx=6)
 time.sleep_ms(1000)
@@ -103,18 +75,6 @@ while not nic.isconnected():
 
 gprint("Wifi connected", clr_idx=4)
 
-ROKU_IP = "192.168.68.49"
-
-def create_keypress(key):
-    url = f"http://{ROKU_IP}:8060/keypress/{key}"
-    requests.post(url)
-
-
-# roku = Roku(ROKU_IP)
-
-# gprint("Roku init", clr_idx=4)
-
-# current_text = "Ready"
 
 while True:
     keys = kb.get_new_keys()
@@ -133,15 +93,13 @@ while True:
             create_keypress("Left")
         elif "RIGHT" in keys:
             create_keypress("Right")
-        elif "A" in keys:
-            create_keypress("Home")
-        elif "B" in keys:
-            create_keypress("Back")
-        elif "ENTER" in keys:
-            create_keypress("Select")
         elif "ESC" in keys:
+            create_keypress("Home")
+        elif "BSPC" in keys:
             create_keypress("Back")
-        elif "SPACE" in keys:
+        elif "ENT" in keys:
+            create_keypress("Select")
+        elif "SPC" in keys:
             create_keypress("Play")
 
 
