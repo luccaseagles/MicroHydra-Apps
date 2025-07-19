@@ -129,20 +129,20 @@ while True:
             create_keypress("Up")
         elif "DOWN" in keys:
             create_keypress("Down")
-        # elif "LEFT" in keys:
-        #     create_keypress("Left")
-        # elif "RIGHT" in keys:
-        #     create_keypress("Right")
-        # elif "A" in keys:
-        #     create_keypress("Home")
-        # elif "B" in keys:
-        #     create_keypress("Back")
-        # elif "ENTER" in keys:
-        #     create_keypress("Select")
-        # elif "ESC" in keys:
-        #     create_keypress("Back")
-        # elif "SPACE" in keys:
-        #     create_keypress("Play")
+        elif "LEFT" in keys:
+            create_keypress("Left")
+        elif "RIGHT" in keys:
+            create_keypress("Right")
+        elif "A" in keys:
+            create_keypress("Home")
+        elif "B" in keys:
+            create_keypress("Back")
+        elif "ENTER" in keys:
+            create_keypress("Select")
+        elif "ESC" in keys:
+            create_keypress("Back")
+        elif "SPACE" in keys:
+            create_keypress("Play")
 
 
     time.sleep_ms(10)
