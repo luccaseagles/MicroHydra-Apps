@@ -78,7 +78,7 @@ For clarity, this is how the `app-source` folder is structured:
 ### <img src="images/icons/InfraRed.png" width="14"> [InfraRed](https://github.com/echo-lalia/MicroHydra-Apps/tree/main/app-source/InfraRed)  
 > <img src="https://github.com/ndrnmnk.png?size=20" width="10"> **[ndrnmnk](https://github.com/ndrnmnk)**  
 > Version: **1.0** | License: **?**  
-> Infrared codes sender/reciever app. v4
+> Infrared codes sender/reciever app. v5
 <br/>
 
 ### <img src="images/icons/Remote.png" width="14"> [Remote](https://github.com/echo-lalia/MicroHydra-Apps/tree/main/app-source/Remote)  

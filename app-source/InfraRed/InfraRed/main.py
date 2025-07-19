@@ -1,4 +1,47 @@
-# from machine import Pin, disable_irq, enable_irq
+"""A simple app to query Wikipedia for page summaries."""
+# import requests, network, time
+import time
+# from machine import Pin, freq
+from lib.display import Display
+# from lib.userinput import UserInput
+# from lib.hydra.config import Config
+from lib.device import Device
+from lib.hydra.popup import UIOverlay
+from font import vga1_8x16 as font
+
+# # ROKU_IP = "192.168.68.49"
+
+# freq(240000000)
+
+# if "CARDPUTER" in Device:
+#     import neopixel
+#     led = neopixel.NeoPixel(Pin(21), 1, bpp=3)
+
+tft = Display(use_tiny_buf=("spi_ram" not in Device))
+
+config = Config()
+
+# kb = UserInput()
+
+OVERLAY = UIOverlay()
+
+DISPLAY_WIDTH = Device.display_width
+DISPLAY_HEIGHT = Device.display_height
+DISPLAY_WIDTH_HALF = DISPLAY_WIDTH // 2
+DISPLAY_HEIGHT_HALF = DISPLAY_HEIGHT // 2
+
+MAX_H_CHARS = DISPLAY_WIDTH // 8
+MAX_V_LINES = DISPLAY_HEIGHT // 16
+
+def gprint(text, clr_idx=8):
+    text = str(text)
+    print(text)
+    tft.fill(config.palette[2])
+    x = DISPLAY_WIDTH_HALF - (len(text) * 4)
+    tft.text(text, x, DISPLAY_HEIGHT_HALF, config.palette[clr_idx], font=font)
+    tft.show()
+
+#  from machine import Pin, disable_irq, enable_irq
 # from micropython import const
 # import time
 
@@ -186,5 +229,5 @@ NEC_COMMAND = 0x40BF
 
 # # Send signal
 # tx.send_raw(raw_signal)
-print("Power signal sent.")
+gprint("Power signal sent.")
 time.sleep_ms(1000)
