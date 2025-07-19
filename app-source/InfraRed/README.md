@@ -7,7 +7,7 @@ This file is generated from the "details.yml" file. (Any changes here will be ov
 > App name: **InfraRed**
 <br/>
 
-Infrared codes sender and reciever app. v3
+Infrared codes sender and reciever app.
 
 
 <br/><br/>
