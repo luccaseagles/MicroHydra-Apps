@@ -73,7 +73,7 @@ gprint(f"Waiting for connection...")
 while not nic.isconnected():
     time.sleep_ms(100)
 
-gprint("Wifi connected", clr_idx=4)
+gprint("Roku Connected: arrow keys, esc: Back, tab: home, ok: Enter", clr_idx=4)
 
 
 while True:
@@ -81,10 +81,7 @@ while True:
     kb.ext_dir_keys(keys)
 
     if keys:
-        # current_text = str(keys)
-        # gprint(current_text, clr_idx=6)       
-
-        # Roku key mappings
+        # Directional and special keys
         if "UP" in keys:
             create_keypress("Up")
         elif "DOWN" in keys:
@@ -94,16 +91,22 @@ while True:
         elif "RIGHT" in keys:
             create_keypress("Right")
         elif "ESC" in keys:
-            create_keypress("Home")
-        elif "BSPC" in keys:
             create_keypress("Back")
         elif "ENT" in keys:
             create_keypress("Select")
-        elif "SPC" in keys:
-            create_keypress("Play")
+        elif "TAB" in keys:
+            create_keypress("Home")
         else:
             for key in keys:
-                create_keypress(f"Lit_{key}")
+                if key == "BSPC":
+                    create_keypress("Lit_\x08")  # ASCII backspace
+                elif key == "SPC":
+                    create_keypress("Lit_ ")   # ASCII space
+                else:
+                    create_keypress(f"Lit_{key}")
+
+    time.sleep_ms(10)
+
 
     time.sleep_ms(10)
 
