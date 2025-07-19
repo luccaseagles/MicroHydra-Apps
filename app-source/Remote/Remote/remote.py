@@ -73,7 +73,7 @@ gprint(f"Waiting for connection...")
 while not nic.isconnected():
     time.sleep_ms(100)
 
-gprint("Roku Connected (Hint: Tab: Home)", clr_idx=4)
+gprint("Hint: Tab: Home", clr_idx=4)
 
 
 while True:
@@ -97,7 +97,7 @@ while True:
         elif "TAB" in keys:
             create_keypress("Home")
         elif "SPC" in keys:
-            create_keypress("Lit_a")
+            create_keypress("Lit_ ")
         elif "BSPC" in keys:
             create_keypress("Backspace")
         else:
