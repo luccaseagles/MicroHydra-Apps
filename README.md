@@ -75,7 +75,7 @@ For clarity, this is how the `app-source` folder is structured:
 *There are 2 apps for the Cardputer.*
 
 
-### <img src="images/default_icon.png" width="14"> [InfraRed](https://github.com/echo-lalia/MicroHydra-Apps/tree/main/app-source/InfraRed)  
+### <img src="images/icons/InfraRed.png" width="14"> [InfraRed](https://github.com/echo-lalia/MicroHydra-Apps/tree/main/app-source/InfraRed)  
 > <img src="https://github.com/ndrnmnk.png?size=20" width="10"> **[ndrnmnk](https://github.com/ndrnmnk)**  
 > Version: **1.0** | License: **?**  
 > Infrared codes sender/reciever app.
