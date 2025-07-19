@@ -87,7 +87,7 @@ def fetch_article():
             gprint(f"Got this error while connecting: {repr(e)}", clr_idx=11)
 
     # wait until connected
-    gprint(f"Waiting for connection...")
+    gprint(f"WHAT? Waiting for connection...")
     while not nic.isconnected():
         time.sleep_ms(100)
             
