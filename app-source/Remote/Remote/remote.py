@@ -1,20 +1,16 @@
-"""
-Roku Remote for MicroHydra
-
-Control a Roku device over Wi-Fi using MicroPython.
-"""
-
-import time, network, urequests
-from machine import freq
+"""A simple app to query Wikipedia for page summaries."""
+import requests, network, time, json
+from machine import Pin, freq
 from lib.display import Display
 from lib.userinput import UserInput
 from lib.hydra.config import Config
 from lib.device import Device
-from font import vga1_8x16 as font
 from lib.hydra.popup import UIOverlay
+from font import vga1_8x16 as font
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~ Setup & Globals ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~ global objects/vars ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 freq(240000000)
 
 if "CARDPUTER" in Device:
@@ -22,100 +18,205 @@ if "CARDPUTER" in Device:
     led = neopixel.NeoPixel(Pin(21), 1, bpp=3)
 
 tft = Display(use_tiny_buf=("spi_ram" not in Device))
+
 config = Config()
+
 kb = UserInput()
+
 nic = network.WLAN(network.STA_IF)
+
 OVERLAY = UIOverlay()
 
 DISPLAY_WIDTH = Device.display_width
 DISPLAY_HEIGHT = Device.display_height
 DISPLAY_WIDTH_HALF = DISPLAY_WIDTH // 2
+DISPLAY_HEIGHT_HALF = DISPLAY_HEIGHT // 2
 
-_CHAR_WIDTH = 8
-_CHAR_WIDTH_HALF = _CHAR_WIDTH // 2
-
-ROKU_IP = "192.168.1.100"  # <-- Set your Roku's IP here
-ROKU_URL = f"http://{ROKU_IP}:8060"
+MAX_H_CHARS = DISPLAY_WIDTH // 8
+MAX_V_LINES = DISPLAY_HEIGHT // 16
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~ Utility Functions ~~~~~~~~~~~~~~~~~~~~~~~
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Function Definitions: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+def dotted_hline(tft, y_position, color):
+    for i in range(4, DISPLAY_WIDTH - 20, 4):
+        tft.pixel(i, y_position, color)
+
+
 def gprint(text, clr_idx=8):
     text = str(text)
     print(text)
     tft.fill(config.palette[2])
-    x = DISPLAY_WIDTH_HALF - (len(text) * _CHAR_WIDTH_HALF)
-    tft.text(text, x, DISPLAY_HEIGHT // 2, config.palette[clr_idx], font=font)
+    x = DISPLAY_WIDTH_HALF - (len(text) * 4)
+    tft.text(text, x, DISPLAY_HEIGHT_HALF, config.palette[clr_idx], font=font)
     tft.show()
+
 
 def errprint(text):
     text = str(text)
-    print("[ERROR]", text)
+    print(text)
     tft.fill(config.palette[1])
     OVERLAY.error(text)
 
-def connect_wifi():
-    gprint("Connecting Wi-Fi...", clr_idx=6)
-    if not nic.active():
-        nic.active(True)
 
-    while not nic.isconnected():
+# ~~~~~~~~~~~~~~~~~~~~~~~~~fetch article~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+def fetch_article():
+    
+    url = "https://en.wikipedia.org/api/rest_v1/page/summary/" + OVERLAY.text_entry(start_value='', title="Enter query:")
+    if url == "https://en.wikipedia.org/api/rest_v1/page/summary/":
+        url = "https://en.wikipedia.org/api/rest_v1/page/random/summary/"
+
+    if "CARDPUTER" in Device:
+        led.fill((10,0,0)); led.write() # set led
+
+    gprint('Connecting to WIFI...', clr_idx=6)
+    
+    if not nic.active(): # turn on wifi if it isn't already
+        nic.active(True)
+    
+    if "CARDPUTER" in Device:
+        led.fill((10,10,0)); led.write() # set led
+    
+    # keep trying to connect until command works
+    while True:
         try:
             nic.connect(config['wifi_ssid'], config['wifi_pass'])
+            break
         except Exception as e:
-            gprint(f"WiFi error: {repr(e)}", clr_idx=11)
-            time.sleep(1)
-        time.sleep_ms(500)
+            gprint(f"Got this error while connecting: {repr(e)}", clr_idx=11)
 
-    gprint("Connected!", clr_idx=4)
-    time.sleep(0.5)
+    # wait until connected
+    gprint(f"Waiting for connection...")
+    while not nic.isconnected():
+        time.sleep_ms(100)
+            
+    if "CARDPUTER" in Device:
+        led.fill((0,10,10)); led.write() # set led
+    
+    gprint("Making request...", clr_idx=6)
+    
+    response = requests.get(url)
 
-def roku_keypress(key):
-    try:
-        response = urequests.post(f"{ROKU_URL}/keypress/{key}")
-        response.close()
-        gprint(f"Sent: {key}", clr_idx=5)
-    except Exception as e:
-        errprint(f"Send failed: {key}\n{e}")
-        time.sleep(1)
+    while response.status_code != 200: # only continue if valid page is found
+        print(response.status_code)
+        if response.status_code in (301, 302):
+            #this is a redirect. use redirect url instead
+            redirect_name = response.headers['location']
+            url = "https://en.wikipedia.org/api/rest_v1/page/summary/" + redirect_name
+            gprint(f"Redirecting to '{redirect_name}'", clr_idx=6)
+            time.sleep_ms(10)
+            response = requests.get(url)
+            print(response.status_code)
+
+        elif response.status_code == 303:
+            #alternate format for redirect
+            url = response.headers['location']
+            gprint("Redirecting...", clr_idx=6)
+            time.sleep_ms(10)
+            response = requests.get(url)
+
+        else: #404 or another error
+            gprint("No results.", clr_idx=11)
+            time.sleep(2)
+            url = "https://en.wikipedia.org/api/rest_v1/page/summary/" + OVERLAY.text_entry(start_value='', title="Enter query:")
+            response = requests.get(url)
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~ Main Loop ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def main():
-    connect_wifi()
-    gprint("Roku Remote Ready", clr_idx=4)
-    time.sleep(1)
+    if "CARDPUTER" in Device:
+        led.fill((0,40,0)); led.write() # set led    
+    
+    result = response.content
+    nic.active(False) #turn off wifi
+    # delete response to (hopefully) free memory
+    del response
 
-    current_text = "Ready"
+    tft.fill(config.palette[2])
 
-    while True:
-        keys = kb.get_new_keys()
-        kb.ext_dir_keys(keys)
+    #split text into lines
+    words = json.loads(result)["extract"].split(" ")
 
-        if keys:
-            current_text = str(keys)
-            gprint(current_text, clr_idx=6)
+    lines = []
+    current_string = ""
+    for word in words:
+        if len(current_string) + len(word) + 1 < MAX_H_CHARS:
+            current_string += word + " "
+        else:
+            lines.append(current_string)
+            current_string = word + " "
+    lines.append(current_string) # add final line
 
-            # Roku key mappings
-            if "UP" in keys:
-                roku_keypress("Up")
-            elif "DOWN" in keys:
-                roku_keypress("Down")
-            elif "LEFT" in keys:
-                roku_keypress("Left")
-            elif "RIGHT" in keys:
-                roku_keypress("Right")
-            elif "A" in keys:
-                roku_keypress("Home")
-            elif "B" in keys:
-                roku_keypress("Back")
-            elif "ENTER" in keys:
-                roku_keypress("Select")
-            elif "ESC" in keys:
-                roku_keypress("Back")
-            elif "SPACE" in keys:
-                roku_keypress("Play")
+    #page lines
+    for i in range(1, MAX_V_LINES):
+        dotted_hline(tft, (17*i) - 1, config.palette[4])
+    tft.show()
+    
+    if "CARDPUTER" in Device:
+        led.fill((0,0,0)); led.write() # set led  
+    
+    return lines
 
+
+
+#--------------------------------------------------------------------------------------------------
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Main Loop: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#--------------------------------------------------------------------------------------------------
+
+
+
+lines = fetch_article()
+
+screen_index = -1 # the line at the top of the display. Indicates current scroll distance.
+
+keys = kb.get_new_keys()
+
+update_display = True
+while True:
+    
+    # handle key strokes
+    keys = kb.get_new_keys()
+    kb.ext_dir_keys(keys)
+    
+    if keys:
+        if 'UP' in keys: # up arrow
+            screen_index -= 1
+            if screen_index < -1:
+                screen_index = len(lines) - 7
+            update_display = True
+        elif 'DOWN' in keys: # down arrow
+            screen_index += 1
+            if screen_index > len(lines) - 7:
+                screen_index = -1
+            update_display = True
+        elif "ESC" in keys: # esc
+            lines = fetch_article()
+            screen_index = -1
+            update_display = True
+
+
+    if update_display:
+        #scroll bar
+        max_screen_index = max((len(lines) - (MAX_V_LINES - 1)), 1)
+        scrollbar_height = min(DISPLAY_HEIGHT, (DISPLAY_HEIGHT // max_screen_index) + 16)
+        scrollbar_position = int((DISPLAY_HEIGHT - scrollbar_height) * (screen_index / max_screen_index)) + 4
+        if scrollbar_position > DISPLAY_HEIGHT - scrollbar_height:
+            scrollbar_position = DISPLAY_HEIGHT - scrollbar_height
+        tft.rect(DISPLAY_WIDTH - 2, 0, 2, DISPLAY_HEIGHT, config.palette[1], fill=True)        
+        tft.rect(DISPLAY_WIDTH - 2, scrollbar_position, 2, scrollbar_height, config.palette[6], fill=True)
+
+
+        # update display
+        #check for down arrow press for scroll direction
+        for idx in range(0, MAX_V_LINES): #update top of screen first
+            line_index = screen_index + idx
+            tft.rect(0, idx*17, DISPLAY_WIDTH-2, 16, config.palette[2], fill=True)
+            if line_index < len(lines) and line_index >= 0:
+                tft.text(lines[line_index], 4, idx*17, config.palette[8], font=font)
+
+        tft.show()
+        update_display = False
+
+    else:
         time.sleep_ms(10)
-
-
-main()
