@@ -76,8 +76,8 @@ For clarity, this is how the `app-source` folder is structured:
 
 
 ### <img src="images/icons/Remote.png" width="14"> [Remote](https://github.com/echo-lalia/MicroHydra-Apps/tree/main/app-source/Remote)  
-> <img src="https://github.com/echo-lalia.png?size=20" width="10"> **[echo-lalia](https://github.com/echo-lalia)**  
+> <img src="https://github.com/echo-lalia.png?size=20" width="10"> **[Luccas](https://github.com/echo-lalia)**  
 > Version: **1.1** | License: **[MIT](https://github.com/echo-lalia/MicroHydra-Apps/blob/main/LICENSE)**  
-> Luccas' remote for his TV 11
+> Luccas' remote for his TV 12
 <br/>
 
