@@ -168,7 +168,7 @@ gprint("Inited")
 time.sleep_ms(1000)
 
 
-raw_signal = nec_ir_signal("20DF", "A35C")
+raw_signal = nec_ir_signal("04000000", "08000000")
 tx.send_raw(raw_signal)
 gprint("Power OFF signal sent.")
 
