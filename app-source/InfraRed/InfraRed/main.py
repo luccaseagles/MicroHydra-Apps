@@ -168,7 +168,7 @@ gprint("Inited")
 time.sleep_ms(1000)
 
 
-raw_signal = nec_ir_signal("20DF", "23DC")
+raw_signal = nec_ir_signal("20DF", "A35C")
 tx.send_raw(raw_signal)
-gprint("Power ON signal sent.")
+gprint("Power OFF signal sent.")
 
