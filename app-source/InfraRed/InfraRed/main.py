@@ -167,8 +167,11 @@ tx = UpyIrTx(0, 44)
 gprint("Inited")
 time.sleep_ms(1000)
 
+for i in range(10):
+    gprint("Send")
+    raw_signal = nec_ir_signal("20DF0000", "10EF0000")
+    tx.send_raw(raw_signal)
+    gprint("Sleep")
+    time.sleep_ms(1000)
 
-raw_signal = nec_ir_signal("20DF", "10EF")
-tx.send_raw(raw_signal)
-gprint("Power OFF signal sent.")
 
