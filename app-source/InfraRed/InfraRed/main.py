@@ -12,19 +12,14 @@ from font import vga1_8x16 as font
 from machine import Pin, disable_irq, enable_irq
 from micropython import const
 
-# # ROKU_IP = "192.168.68.49"
+from NEC2RAW import *
 
-# freq(240000000)
+import esp32
 
-# if "CARDPUTER" in Device:
-#     import neopixel
-#     led = neopixel.NeoPixel(Pin(21), 1, bpp=3)
 
 tft = Display(use_tiny_buf=("spi_ram" not in Device))
 
 config = Config()
-
-# kb = UserInput()
 
 OVERLAY = UIOverlay()
 
@@ -46,177 +41,76 @@ def gprint(text, clr_idx=8):
 
 
 
-# # IR RX class for ESP32 & RaspberryPi pico
+# IR TX class for ESP32
+# micropython v1.17 - v1.18(latest as of 2022/5)
 
-class UpyIrRx():
-    # Default record stop condition
-    WAIT_MS_DEFAULT  = const(5000)   # [ms]
-    BLANK_MS_DEFAULT = const(200)    # [ms]
-    MAX_DEFAULT      = const(1023)
-    # Binary bytes per sample
-    UNIT_BYTES = const(3)
+class UpyIrTx():
 
-    # Record mode
-    MODE_STAND_BY  = const(0)    # stop recording
-    MODE_DONE_OK   = const(1)
-    MODE_DONE_NG   = const(2)
-    MODE_READY     = const(3)    # run recording
-    MODE_RECORDING = const(4)
-
-    # Error code
-    ERROR_NONE        = const(0)
-    ERROR_NO_DATA     = const(1)
-    ERROR_OVERFLOW    = const(2)
-    ERROR_START_POINT = const(3)
-    ERROR_END_POINT   = const(4)
-    ERROR_TIMEOUT     = const(5)
-
-    def __init__(self, pin, max_size=0, idle_level=1):
-        self._pin = pin
-        if max_size <= 0:
-            self._max_size = UpyIrRx.MAX_DEFAULT
-        else:
-            if max_size % 2 == 0:
-                self._max_size = max_size + 1
-            else:
-                self._max_size = max_size
+    def __init__(self, ch, pin, freq=38000, duty=99, idle_level=0):
+        self._raise = False
+        if freq <= 0 or duty <= 0 or duty >= 100 or ch < 0 or ch > 7:
+            raise(IndexError())
         if idle_level:
-            self._idle_level = 1
+            self._rmt = esp32.RMT(ch, pin=pin, clock_div=80, tx_carrier=(freq, (100-duty), 0), idle_level=True)
+            self._posi = 0
         else:
-            self._idle_level = 0
-        self._buffer = bytearray(self._max_size * UpyIrRx.UNIT_BYTES)
-        self._record_size = 0
-        self._mode = UpyIrRx.MODE_STAND_BY
-        self._error = UpyIrRx.ERROR_NONE
-        self._now = 0
-        self._last = 0
-        self._stop_size = 0
-        dmy = self._pin.irq(trigger=Pin.IRQ_RISING | Pin.IRQ_FALLING, handler=self._callback)
+            self._rmt = esp32.RMT(ch, pin=pin, clock_div=80, tx_carrier=(freq, duty, 1), idle_level=False)
+            self._posi = 1
 
-    def get_mode(self):
-        return(self._mode)
-
-    def get_error_code(self):
-        return(self._error)
-
-    def get_record_buffer(self):
-        if self._mode == UpyIrRx.MODE_DONE_OK:
-            return(self._buffer)
-        else:
-            return(b'')
-
-    def get_record_size(self):
-        if self._mode == UpyIrRx.MODE_DONE_OK:
-            return(self._record_size)
-        else:
-            return(0)
-
-    def get_encode_bytes(self):
-        return(UpyIrRx.UNIT_BYTES)
-
-    def get_record_list(self):
-        if self._mode == UpyIrRx.MODE_DONE_OK:
-            return([int.from_bytes(self._buffer[i*UpyIrRx.UNIT_BYTES: (i+1)*UpyIrRx.UNIT_BYTES], 'little') for i in range(self._record_size)])
-        else:
-            return([])
-
-    def get_calibrate_list(self):
-        top32 = [9999]*32
-        for i in range(self._record_size if self._record_size < 32 else 32):
-            top32[i] = int.from_bytes(self._buffer[i*UpyIrRx.UNIT_BYTES: (i+1)*UpyIrRx.UNIT_BYTES], 'little')
-        min_interval = min(top32)
-        for i in range(31):
-            if top32[i] < min_interval*1.4 and top32[i+1] < min_interval*1.4:
-                basic_time = (top32[i]+top32[i+1]) // 2
-                break
-        else:
-            return([])
-        return([round(int.from_bytes(self._buffer[i*UpyIrRx.UNIT_BYTES: (i+1)*UpyIrRx.UNIT_BYTES], 'little')/basic_time)*basic_time for i in range(self._record_size)])
-
-    def record(self, wait_ms=0, blank_ms=0, stop_size=0):
-        if wait_ms <= 0:
-            _wait_ms = UpyIrRx.WAIT_MS_DEFAULT
-        else:
-            _wait_ms = wait_ms
-        if blank_ms <= 0:
-            _blank_us = UpyIrRx.BLANK_MS_DEFAULT*1000
-        else:
-            _blank_us = blank_ms*1000
-        if stop_size <= 0:
-            self._stop_size = self._max_size
-        else:
-            if stop_size % 2 == 0:
-                self._stop_size = stop_size + 1
+    def send_raw(self, signal_tuple):
+        # Blocking until transmission
+        # Value[us] must be less than 32,768(15bit)
+        if signal_tuple:
+            self._rmt.write_pulses(signal_tuple, self._posi)
+            self._rmt.wait_done(timeout=2000)
+        return(True)
+    
+    def send(self, signal_tuple):
+        # Blocking until transmission
+        # Value[us] is free
+        if not signal_tuple:
+            return(True)
+        overindex = []
+        offsets = []
+        cumsum = 0
+        len_signal = len(signal_tuple)
+        if len_signal % 2 == 0:
+            return(False)
+        for i in range(len_signal):
+            if signal_tuple[i] >= 32768:
+                if i % 2 == 0:
+                    return(False)
+                else:
+                    overindex.append(i)
+                    offsets.append(cumsum)
+                    cumsum = 0
             else:
-                self._stop_size = stop_size
-            if self._stop_size > self._max_size:
-                self._stop_size = self._max_size
-        self._record_size = 0
-        self._error = UpyIrRx.ERROR_NONE
-        if self._pin.value() != self._idle_level:
-            self._mode = UpyIrRx.MODE_DONE_NG
-            self._error = UpyIrRx.ERROR_START_POINT
-            self._record_size = 0
-            return(self._error)
-        # begin recording
-        self._mode = UpyIrRx.MODE_READY
-        _start_us = time.ticks_us()
-        time.sleep_ms(_wait_ms)
-        # judgement
-        if self._mode == UpyIrRx.MODE_DONE_NG:
-            return(self._error)
-        elif self._mode == UpyIrRx.MODE_DONE_OK:
-            return(self._error)
-        # begin critical
-        irq_state = disable_irq()
-        if self._mode == UpyIrRx.MODE_READY:
-            self._mode = UpyIrRx.MODE_DONE_NG
-            self._error = UpyIrRx.ERROR_NO_DATA
-            self._record_size = 0
-        elif time.ticks_diff(self._last, _start_us) + _blank_us > _wait_ms*1000:
-            # < self._mode == UpyIrRx.MODE_RECORDING >
-            self._mode = UpyIrRx.MODE_DONE_NG
-            self._error = UpyIrRx.ERROR_TIMEOUT
-            self._record_size = 0
+                cumsum += signal_tuple[i]
+        if len(overindex) == 0:
+            self._rmt.write_pulses(signal_tuple, self._posi)
+            self._rmt.wait_done(timeout=2000)
         else:
-            for i in range(self._record_size):
-                if int.from_bytes(self._buffer[i*UpyIrRx.UNIT_BYTES: (i+1)*UpyIrRx.UNIT_BYTES], 'little') >= _blank_us:
-                    self._record_size = i
-                    break
-            if self._record_size % 2 == 0:
-                self._mode = UpyIrRx.MODE_DONE_NG
-                self._error = UpyIrRx.ERROR_END_POINT
-                self._record_size = 0
-            else:
-                self._mode = UpyIrRx.MODE_DONE_OK
-                self._error = UpyIrRx.ERROR_NONE
-        enable_irq(irq_state)
-        # end critial
-        return(self._error)
+            last_index = 0
+            for i in range(len(overindex)):
+                self._rmt.write_pulses(signal_tuple[last_index: overindex[i]], self._posi)
+                time.sleep_us(signal_tuple[overindex[i]]+offsets[i])
+                last_index = overindex[i] + 1
+            self._rmt.write_pulses(signal_tuple[last_index: len_signal], self._posi)
+            self._rmt.wait_done(timeout=2000)
+        return(True)
 
-    def _callback(self, p):
-        if self._mode == UpyIrRx.MODE_READY:
-            self._last = time.ticks_us()
-            self._mode = UpyIrRx.MODE_RECORDING
-        elif self._mode == UpyIrRx.MODE_RECORDING:
-            self._now = time.ticks_us()
-            if self._record_size >= self._max_size:
-                self._mode = UpyIrRx.MODE_DONE_NG
-                self._error = UpyIrRx.ERROR_OVERFLOW
-                self._record_size = 0
-                return
-            self._buffer[self._record_size*UpyIrRx.UNIT_BYTES: (self._record_size+1)*UpyIrRx.UNIT_BYTES] = time.ticks_diff(self._now, self._last).to_bytes(UpyIrRx.UNIT_BYTES, 'little')
-            self._last = self._now
-            self._record_size += 1
-            if self._record_size >= self._stop_size:
-                self._mode = UpyIrRx.MODE_DONE_OK
-                self._error = UpyIrRx.ERROR_NONE
+    def send_cls(self, ir_rx):
+        # Blocking until transmission
+        if ir_rx.get_record_size() != 0:
+            return(self.send(ir_rx.get_calibrate_list()))
+        else:
+            return(False)
 
 
 # Example: NEC protocol, Samsung TV power toggle (address 0xE0E0, command 0x40BF)
 # You'll need to find the right code for YOUR TV
-NEC_ADDRESS = 0xE0E0
-NEC_COMMAND = 0x40BF
+# NEC_ADDRESS = 0xE0E0
+# NEC_COMMAND = 0x40BF
 
 # Or you can use raw pulses directly if you have them, e.g.:
 # RAW_SIGNAL = [4500, 4500, 560, 1690, ...] # Your recorded signal here
@@ -226,9 +120,24 @@ NEC_COMMAND = 0x40BF
 # raw_signal = convert(NEC_ADDRESS, NEC_COMMAND)
 
 # Setup transmitter (Pin 44, Channel 0)
-# tx = UpyIrTx(0, 44)
+tx = UpyIrTx(0, 44)
 
 # # Send signal
 # tx.send_raw(raw_signal)
-gprint("Power signal sent.")
+gprint("Inited")
 time.sleep_ms(1000)
+
+
+# Your NEC code
+POWER_ON_HEX = "20DF23DC"
+
+# Build the NEC pulse sequence
+binary_string = hex_to_bin(POWER_ON_HEX, 32)
+raw_signal = [9000, 4500]
+raw_signal += generate_raw_timing(binary_string)
+raw_signal.append(560)
+
+# Transmit
+tx.send_raw(raw_signal)
+gprint("Power ON signal sent.")
+
