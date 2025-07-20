@@ -12,10 +12,63 @@ from font import vga1_8x16 as font
 from machine import Pin, disable_irq, enable_irq
 from micropython import const
 
-from NEC2RAW import *
-
 import esp32
 
+def hex_to_bin(hex_value, bits=32):
+    """Convert a hex value to a binary string with a fixed number of bits."""
+    bin_value = bin(int(hex_value, 16))[2:]  # Convert to binary and strip the '0b'
+    return pad_binary_string(bin_value, bits)
+
+def pad_binary_string(bin_value, bits):
+    """Pad a binary string with leading zeros to ensure it has the specified number of bits."""
+    if len(bin_value) < bits:
+        return '0' * (bits - len(bin_value)) + bin_value
+    return bin_value
+
+def generate_raw_timing(binary_string):
+    """Convert binary string to raw timing list based on NEC protocol."""
+    timing = []
+    for bit in binary_string:
+        if bit == '1':
+            timing.extend([560, 1690])
+        else:
+            timing.extend([560, 560])
+    return timing
+
+def nec_ir_signal(address, command):
+    """Convert NEC IR signal address and command to raw timing format."""
+    # Convert address and command to binary strings
+    address = address.replace(" ", "")
+    command = command.replace(" ", "")
+    address_bin = hex_to_bin(address)
+    address_inv_bin = hex_to_bin(hex(int(address, 16) ^ 0xFFFFFFFF))[2:]
+    address_inv_bin = pad_binary_string(address_inv_bin, 32)
+    command_bin = hex_to_bin(command)
+    command_inv_bin = hex_to_bin(hex(int(command, 16) ^ 0xFFFFFFFF))[2:]
+    command_inv_bin = pad_binary_string(command_inv_bin, 32)
+
+    # Start of transmission (header)
+    raw_signal = [9000, 4500]
+
+    # Append address and inverted address timings
+    raw_signal += generate_raw_timing(address_bin)
+    raw_signal += generate_raw_timing(address_inv_bin)
+
+    # Append command and inverted command timings
+    raw_signal += generate_raw_timing(command_bin)
+    raw_signal += generate_raw_timing(command_inv_bin)
+
+    # Stop bit
+    raw_signal.append(560)
+
+    return raw_signal
+
+def format_raw_timing(raw_signal):
+    """Format raw timing list into a string for display."""
+    return ' '.join(map(str, raw_signal))
+
+def convert(address, command):
+    return nec_ir_signal(address, command)
 
 tft = Display(use_tiny_buf=("spi_ram" not in Device))
 
@@ -106,38 +159,10 @@ class UpyIrTx():
         else:
             return(False)
 
-
-# Example: NEC protocol, Samsung TV power toggle (address 0xE0E0, command 0x40BF)
-# You'll need to find the right code for YOUR TV
-# NEC_ADDRESS = 0xE0E0
-# NEC_COMMAND = 0x40BF
-
-# Or you can use raw pulses directly if you have them, e.g.:
-# RAW_SIGNAL = [4500, 4500, 560, 1690, ...] # Your recorded signal here
-
-# Assume convert(address, command) returns the right raw waveform
-# from NEC2RAW import convert
-# raw_signal = convert(NEC_ADDRESS, NEC_COMMAND)
-
-# Setup transmitter (Pin 44, Channel 0)
 tx = UpyIrTx(0, 44)
-
-# # Send signal
-# tx.send_raw(raw_signal)
 gprint("Inited")
 time.sleep_ms(1000)
-
-
-# Your NEC code
-POWER_ON_HEX = "20DF23DC"
-
-# Build the NEC pulse sequence
-binary_string = hex_to_bin(POWER_ON_HEX, 32)
-raw_signal = [9000, 4500]
-raw_signal += generate_raw_timing(binary_string)
-raw_signal.append(560)
-
-# Transmit
+raw_signal = nec_ir_signal("20", "23")
 tx.send_raw(raw_signal)
 gprint("Power ON signal sent.")
 
