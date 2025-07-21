@@ -98,8 +98,8 @@ while True:
             create_keypress("Lit_%20")
         elif "BSPC" in keys:
             create_keypress("Backspace")
-        elif "OP" in keys and "o":
-            create_keypress("a")
+        # elif "OP" in keys and "o":
+        #     create_keypress("a")
         else:
             for key in keys:
                 create_keypress(f"Lit_{key}")
