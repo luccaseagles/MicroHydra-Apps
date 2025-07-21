@@ -11,25 +11,34 @@ from font import vga1_8x16 as font
 import socket
 import ure
 
-
 def find_roku_ip():
-    subnet = nic.ifconfig()[0].rsplit('.', 1)[0]  # '192.168.1'
-    tft.fill(config.palette[6])
-    tft.text("Searching for Roku...", 10, DISPLAY_HEIGHT_HALF, config.palette[8], font=font)
-    tft.show()
+    import time
+    subnet = nic.ifconfig()[0].rsplit('.', 1)[0]
     for last in range(1, 255):
         ip = "%s.%d" % (subnet, last)
         try:
             s = socket.socket()
+            s.settimeout(0.3)
             s.connect((ip, 8060))
             req = "GET /query/device-info HTTP/1.1\r\nHost: %s\r\n\r\n" % ip
             s.send(bytes(req, 'utf8'))
-            data = s.recv(256)
+            response = b""
+            try:
+                while True:
+                    chunk = s.recv(256)
+                    if not chunk:
+                        break
+                    response += chunk
+                    if len(response) > 1024:
+                        break
+            except:
+                pass
             s.close()
-            if b"roku" in data.lower() or b"device-info" in data.lower():
+            if b"device-info" in response.lower():
                 return ip
         except Exception as e:
             pass
+        time.sleep(0.02)  # Small pause to avoid flooding network
     return None
 
 
