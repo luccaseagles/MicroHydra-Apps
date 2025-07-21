@@ -8,7 +8,7 @@ from lib.device import Device
 from lib.hydra.popup import UIOverlay
 from font import vga1_8x16 as font
 
-ROKU_IP = "192.168.68.49"
+ROKU_IP = "192.168.68.57"
 
 freq(240000000)
 
