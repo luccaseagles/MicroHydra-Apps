@@ -10,7 +10,6 @@ from font import vga1_8x16 as font
 
 ROKU_IP = "192.168.68.49"
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~ global objects/vars ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 freq(240000000)
 
 if "CARDPUTER" in Device:
@@ -99,6 +98,8 @@ while True:
             create_keypress("Lit_%20")
         elif "BSPC" in keys:
             create_keypress("Backspace")
+        elif "OP" in keys and "o":
+            create_keypress("a")
         else:
             for key in keys:
                 create_keypress(f"Lit_{key}")

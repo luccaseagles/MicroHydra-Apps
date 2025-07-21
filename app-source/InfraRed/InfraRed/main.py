@@ -180,8 +180,8 @@ for i in range(1000):
     # send_and_print("20DF0000", "A35C0000")
     # send_and_print("20DF", "A35C")
     # send_and_print("20DF0000", "23DC0000")
-    # send_and_print("20DF", "23DC")
-    send_and_print("20DF10EF", "00000000")
+    send_and_print("20DF", "23DC")
+    # send_and_print("20DF10EF", "00000000")
     # send_and_print("20DF0000", "10EF0000")
 
 
