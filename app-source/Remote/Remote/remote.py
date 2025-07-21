@@ -8,6 +8,32 @@ from lib.device import Device
 from lib.hydra.popup import UIOverlay
 from font import vga1_8x16 as font
 
+import socket
+import ure
+
+
+def find_roku_ip():
+    subnet = nic.ifconfig()[0].rsplit('.', 1)[0]  # '192.168.1'
+    tft.fill(config.palette[6])
+    tft.text("Searching for Roku...", 10, DISPLAY_HEIGHT_HALF, config.palette[8], font=font)
+    tft.show()
+    for last in range(1, 255):
+        ip = "%s.%d" % (subnet, last)
+        try:
+            s = socket.socket()
+            s.connect((ip, 8060))
+            req = "GET /query/device-info HTTP/1.1\r\nHost: %s\r\n\r\n" % ip
+            s.send(bytes(req, 'utf8'))
+            data = s.recv(256)
+            s.close()
+            if b"roku" in data.lower() or b"device-info" in data.lower():
+                return ip
+        except Exception as e:
+            pass
+    return None
+
+
+
 ROKU_IP = "192.168.68.57"
 
 freq(240000000)
@@ -71,6 +97,10 @@ while True:
 gprint(f"Waiting for connection...")
 while not nic.isconnected():
     time.sleep_ms(100)
+
+ip = find_roku_ip()
+gprint(f"Found IP {ip}")
+time.sleep_ms(1000)
 
 gprint("Hint: Tab: Home", clr_idx=4)
 
