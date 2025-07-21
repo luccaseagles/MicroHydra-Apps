@@ -38,7 +38,6 @@ def find_roku_ip():
                 return ip
         except Exception as e:
             pass
-        time.sleep(0.02)  # Small pause to avoid flooding network
     return None
 
 
@@ -107,10 +106,10 @@ gprint(f"Waiting for connection...")
 while not nic.isconnected():
     time.sleep_ms(100)
 
-ip = find_roku_ip()
-gprint(f"Found IP {ip}")
+gprint(f"Searching Roku IP...")
+ROKU_IP = find_roku_ip()
+gprint(f"Found IP {ROKU_IP}")
 time.sleep_ms(1000)
-
 gprint("Hint: Tab: Home", clr_idx=4)
 
 while True:
